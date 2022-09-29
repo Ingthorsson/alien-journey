@@ -12,10 +12,42 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
+ * Texture
+ */
+const loadingManager = new THREE.LoadingManager()
+loadingManager.onStart = () => {
+    console.log('loading started')
+}
+loadingManager.onLoad = () => {
+    console.log('loading finished')
+}
+loadingManager.onProgress = () => {
+    console.log('loading progressing')
+}
+loadingManager.onError = () => {
+    console.log('loading error')
+}
+
+const textureLoader = new THREE.TextureLoader(loadingManager)
+const texture = textureLoader.load('/textures/door/color.jpg')
+//const colorTexture = textureLoader.load('/textures/door/color.jpg')
+const alphaTexture = textureLoader.load('/textures/door/alpha.jpg')
+const heightTexture = textureLoader.load('/textures/door/height.jpg')
+const normalTexture = textureLoader.load('/textures/door/normal.jpg')
+const ambientOcclusionTexture = textureLoader.load('/textures/door/ambientOcclusion.jpg')
+const metalnessTexture = textureLoader.load('/textures/door/metalness.jpg')
+const roughnessTexture = textureLoader.load('/textures/door/roughness.jpg')
+
+const colorTexture = textureLoader.load('/textures/checkerboard-8x8.png')
+
+colorTexture.generateMipmaps = false
+colorTexture.minFilter = THREE.NearestFilter
+
+/**
  * Object
  */
 const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const material = new THREE.MeshBasicMaterial({ map: colorTexture })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
@@ -23,8 +55,8 @@ scene.add(mesh)
  * Sizes
  */
 const sizes = {
-    width: 800,
-    height: 600
+    width: window.innerWidth,
+    height: window.innerHeight
 }
 
 /**
@@ -47,13 +79,55 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 
+
+
+/**
+ * Resize window
+ */
+window.addEventListener('resize', () => {
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+
+
+window.addEventListener('dblclick', () => {
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
+
+    if (!fullscreenElement) {
+        if (canvas.requestFullscreen) {
+            canvas.requestFullscreen()
+        }
+        else if (canvas.webkitRequestFullscreen) {
+            canvas.webkitRequestFullscreen()
+        }
+    }
+    else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen()
+        }
+        else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen()
+        }
+    }
+})
+
+
 /**
  * Animate
  */
 const clock = new THREE.Clock()
 
-const tick = () =>
-{
+const tick = () => {
     const elapsedTime = clock.getElapsedTime()
 
     // Update controls
