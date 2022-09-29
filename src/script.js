@@ -81,7 +81,7 @@ loadingManager.onError = () => {
 const gltfLoader = new GLTFLoader()
 
 gltfLoader.load(
-    '/models/Duck/glTF/Duck.gltf',
+    '/models/Fox/glTF/Fox.gltf',
     (gltf) => {
         console.log('success')
         console.log(gltf)
